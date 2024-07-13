@@ -16,13 +16,15 @@ import ErrorMessage from "./components/ErrorMessage";
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const query = "pulp fiction";
+  const tempQuery = "pulp fiction";
 
   async function fetchMovies() {
     setIsLoading(true);
+    setError("");
     try {
       const response = await fetch(
         `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`
@@ -35,7 +37,7 @@ export default function App() {
       const data = await response.json();
 
       if (data.Response === "False") throw new Error("Movie not found!");
-      
+
       setMovies(data.Search);
     } catch (error) {
       console.error(error.message);
@@ -46,14 +48,19 @@ export default function App() {
   }
 
   useEffect(() => {
+    if (query.length < 3) {
+      setMovies([]);
+      setError("");
+      return;
+    }
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <Navbar>
         <Logo />
-        <SearchBar />
+        <SearchBar query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </Navbar>
 
