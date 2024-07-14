@@ -9,20 +9,24 @@ import MovieList from "./components/MovieList";
 import WatchedMovieList from "./components/WatchedMovieList";
 import WatchedSummary from "./components/WatchedSummary";
 import Loader from "./components/Loader";
+import MovieDetails from "./components/MovieDetails";
 import ErrorMessage from "./components/ErrorMessage";
-// import { tempMovieData } from "./data/movieData";
-// import { tempWatchedData } from "./data/movieData";
-
-const tempQuery = "Pulp Fiction";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState(tempQuery);
+  const [query, setQuery] = useState("Pulp Fiction");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState("");
 
-  
+  function handleSelectMovie(id) {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId("");
+  }
 
   useEffect(() => {
     async function fetchMovies() {
@@ -32,16 +36,17 @@ export default function App() {
         const response = await fetch(
           `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`
         );
-  
+
         if (!response.ok) {
           throw new Error("Something went wrong with fetching movies!");
         }
-        
+
         const data = await response.json();
-  
+
         if (data.Response === "False") throw new Error("Movie not found!");
-  
+
         setMovies(data.Search);
+        console.log(data.Search);
       } catch (error) {
         console.error(error.message);
         setError(error.message);
@@ -68,12 +73,23 @@ export default function App() {
       <Main>
         <Box>
           {isLoading && !error && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>
