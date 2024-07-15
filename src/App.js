@@ -15,7 +15,7 @@ import ErrorMessage from "./components/ErrorMessage";
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState("Pulp Fiction");
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -28,7 +28,7 @@ export default function App() {
     setSelectedId("");
   }
 
-  function handleAddWatched(movie){
+  function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
   }
 
@@ -37,12 +37,15 @@ export default function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchMovies() {
       setIsLoading(true);
       setError("");
       try {
         const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`,
+          { signal: controller.signal }
         );
 
         if (!response.ok) {
@@ -54,10 +57,13 @@ export default function App() {
         if (data.Response === "False") throw new Error("Movie not found!");
 
         setMovies(data.Search);
-        console.log(data.Search);
+        setError("");
       } catch (error) {
-        console.error(error.message);
-        setError(error.message);
+        // ignore abort err
+        console.log(error.message);
+        if (error.name !== "AbortError") {
+          setError(error.message);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -67,7 +73,13 @@ export default function App() {
       setError("");
       return;
     }
+
+    handleCloseMovie();
     fetchMovies();
+
+    return () => {
+      controller.abort();
+    };
   }, [query]);
 
   return (
@@ -97,7 +109,10 @@ export default function App() {
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMovieList watched={watched} onDeleteWatched={handleDeleteWatched} />
+              <WatchedMovieList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           )}
         </Box>
