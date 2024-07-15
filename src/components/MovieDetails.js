@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
+import Loader from "./Loader";
 
 export default function MovieDetials({
   selectedId,
@@ -58,6 +59,8 @@ export default function MovieDetials({
     }
     fetchMovieDetails();
   }, [selectedId]);
+
+  if(isLoading) return <Loader />
 
   return (
     <div className="details">
