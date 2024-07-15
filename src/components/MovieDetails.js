@@ -13,7 +13,9 @@ export default function MovieDetials({
   const [isLoading, setIsLoading] = useState(false);
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
-  const watchedUserRating = watched.find((movie) => movie.imdbID === selectedId)?.userRating;
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === selectedId
+  )?.userRating;
 
   const {
     Title: title,
@@ -60,7 +62,15 @@ export default function MovieDetials({
     fetchMovieDetails();
   }, [selectedId]);
 
-  if(isLoading) return <Loader />
+  useEffect(() => {
+    if (!title) return;
+    document.title = `Movie | ${title}`;
+    return () => {
+      document.title = "usePopcorn - A React App";
+    };
+  }, [title]);
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="details">
@@ -97,7 +107,10 @@ export default function MovieDetials({
               )}{" "}
             </>
           ) : (
-            <p>You rated this movie: {watchedUserRating}<span>⭐</span></p>
+            <p>
+              You rated this movie: {watchedUserRating}
+              <span>⭐</span>
+            </p>
           )}
         </div>
         <p>
