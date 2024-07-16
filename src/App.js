@@ -19,7 +19,7 @@ export default function App() {
     const storedValue = localStorage.getItem("watched");
     return JSON.parse(storedValue) || [];
   });
-  const [query, setQuery] = useState("Pulp Fiction");
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -39,10 +39,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(() => { 
-    localStorage.setItem("watched", JSON.stringify(watched));
-  }, [watched]);
 
   useEffect(() => { 
     localStorage.setItem("watched", JSON.stringify(watched));
