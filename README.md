@@ -3,6 +3,12 @@
   ## Description
 
   A demo React app demonstrating the use of React Props and Hooks and custom hooks.  Search for movies via an api, add and remove movies to your watch list, and rate them.
+
+  ### Deployed URL:  https://billstephens2022.github.io/usepopcorn-react/
+
+  ### App Screenshot
+
+  ![app screenshot](/public/screenshot.png)
   
   ## Table of Contents
   
